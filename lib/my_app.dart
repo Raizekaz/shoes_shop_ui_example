@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:shoes_shop_ui/features/onboarding/view/onboarding_screen.dart';
 import 'package:shoes_shop_ui/routes/app_navigation.dart';
 
 class App extends StatelessWidget {
@@ -38,14 +39,17 @@ class _MateApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Builder(
       builder: (context) {
-        return MaterialApp.router(
-            // theme: AppThemes.lightTheme,
-            // darkTheme: AppThemes.lightTheme,
-            // localizationsDelegates: AppLocalizations.localizationsDelegates,
-            // supportedLocales: AppLocalizations.supportedLocales,
-            routerConfig:
-                // AppRouter(context.read<AppBloc>(), screenFactory).router,
-                AppRouter(screenFactory).router);
+        return CupertinoApp.router(
+          theme: const CupertinoThemeData(brightness: Brightness.light),
+          color: const Color(0xFFcccccc),
+          // theme: AppThemes.lightTheme,
+          // darkTheme: AppThemes.lightTheme,
+          // localizationsDelegates: AppLocalizations.localizationsDelegates,
+          // supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig:
+              // AppRouter(context.read<AppBloc>(), screenFactory).router,
+              AppRouter(screenFactory).router,
+        );
       },
     );
   }

@@ -1,14 +1,16 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
 abstract class NavigationRouteNames {
-  static const mainScreen = '/';
+  static const mainScreen = '/main_screen';
   static const loginScreen = 'login';
+  static const onboardingScreen = '/';
 }
 
 abstract class ScreenFactory {
   Widget makeMainScreen();
   Widget makeLoginScreen();
+  Widget makeOnboardingScreen();
 }
 
 class AppRouter {
@@ -19,6 +21,7 @@ class AppRouter {
 
   late final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
+    initialLocation: '/',
     routes: <GoRoute>[
       GoRoute(
         path: '/login',
@@ -28,7 +31,7 @@ class AppRouter {
         },
       ),
       GoRoute(
-        path: '/',
+        path: '/main_screen',
         name: NavigationRouteNames.mainScreen,
         builder: (BuildContext context, GoRouterState state) {
           return screenFactory.makeMainScreen();
@@ -44,14 +47,21 @@ class AppRouter {
         //   ),
         // ],
       ),
+      GoRoute(
+        path: '/',
+        name: NavigationRouteNames.onboardingScreen,
+        builder: (BuildContext context, GoRouterState state) {
+          return screenFactory.makeOnboardingScreen();
+        },
+      ),
     ],
     // redirect: (BuildContext context, GoRouterState state) {
-    //   final loggedIn = appBloc.state.status == AppStatus.authenticated;
-    //   final loggingIn = state.subloc == '/login';
+    // final loggedIn = appBloc.state.status == AppStatus.authenticated;
+    // final loggingIn = state.subloc == '/login';
 
-    //   if (!loggedIn) return loggingIn ? null : '/login';
-    //   if (loggingIn) return '/';
-    //   return null;
+    // if (!loggedIn) return loggingIn ? null : '/login';
+    // if (loggingIn) return '/';
+    // return '/';
     // },
     // refreshListenable: GoRouterRefreshStream(appBloc.stream),
   );

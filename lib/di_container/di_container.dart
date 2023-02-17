@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shoes_shop_ui/features/onboarding/bloc/onboarding_bloc.dart';
+import 'package:shoes_shop_ui/features/onboarding/view/onboarding_screen.dart';
 import 'package:shoes_shop_ui/main.dart';
 import 'package:shoes_shop_ui/my_app.dart';
 import 'package:shoes_shop_ui/routes/app_navigation.dart';
@@ -36,5 +39,13 @@ class ScreenFactoryDefault implements ScreenFactory {
   Widget makeMainScreen() {
     // return MainScreen(screenFactory: _diContainer._makeScreenFactory());
     return const Text('data');
+  }
+
+  @override
+  Widget makeOnboardingScreen() {
+    return BlocProvider(
+      create: (_) => OnboardingBloc(),
+      child: const OnBoardingScreen(),
+    );
   }
 }
