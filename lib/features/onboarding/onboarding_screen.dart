@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shoes_shop_ui/components/get_started_button_widget.dart';
 import 'package:shoes_shop_ui/resources/resources.dart';
+import 'package:shoes_shop_ui/routes/app_navigation.dart';
 import 'package:shoes_shop_ui/themes/app_colors.dart';
 import 'package:shoes_shop_ui/themes/app_text_styles.dart';
 
@@ -65,63 +67,69 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           ),
           Expanded(
             flex: 2,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: List.generate(
-                        contentData.length,
-                        (index) => buildDot(index: index),
-                      ),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                GetStartedButtonWidget(
-                  title: Text(
-                    'GET STARTED',
-                    style: AppTextStyles.fs16fw600white,
-                  ),
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  onTap: () {},
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 30),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width * 0.1,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      GetStartedButtonWidget(
-                        icon: AppIcons.google,
-                        title: Text(
-                          'GOOGLE',
-                          style: AppTextStyles.fs16fw600,
+                      Row(
+                        children: List.generate(
+                          contentData.length,
+                          (index) => buildDot(index: index),
                         ),
-                        width: MediaQuery.of(context).size.width * 0.4,
-                        color: AppColors.white,
-                        padding: 14,
-                        border: Border.all(color: AppColors.grey300),
-                        onTap: () {},
-                      ),
-                      GetStartedButtonWidget(
-                        icon: AppIcons.facebook,
-                        title: Text(
-                          'FACEBOOK',
-                          style: AppTextStyles.fs16fw600,
-                        ),
-                        width: MediaQuery.of(context).size.width * 0.4,
-                        color: AppColors.white,
-                        padding: 14,
-                        border: Border.all(color: AppColors.grey300),
-                        onTap: () {},
                       ),
                     ],
                   ),
-                ),
-              ],
+                  const Spacer(),
+                  GetStartedButtonWidget(
+                    title: Text(
+                      'GET STARTED',
+                      style: AppTextStyles.fs16fw600white,
+                    ),
+                    width: MediaQuery.of(context).size.width,
+                    onTap: () =>
+                        context.goNamed(NavigationRouteNames.signInScreen),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GetStartedButtonWidget(
+                          icon: AppIcons.google,
+                          title: Text(
+                            'GOOGLE',
+                            style: AppTextStyles.fs16fw600,
+                          ),
+                          width: MediaQuery.of(context).size.width * 0.375,
+                          color: AppColors.white,
+                          padding: 14,
+                          border: Border.all(color: AppColors.grey300),
+                          onTap: () {},
+                        ),
+                        GetStartedButtonWidget(
+                          icon: AppIcons.facebook,
+                          title: Text(
+                            'FACEBOOK',
+                            style: AppTextStyles.fs16fw600,
+                          ),
+                          width: MediaQuery.of(context).size.width * 0.375,
+                          color: AppColors.white,
+                          padding: 14,
+                          border: Border.all(color: AppColors.grey300),
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

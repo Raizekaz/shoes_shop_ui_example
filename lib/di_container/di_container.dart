@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shoes_shop_ui/features/onboarding/bloc/onboarding_bloc.dart';
-import 'package:shoes_shop_ui/features/onboarding/view/onboarding_screen.dart';
+import 'package:shoes_shop_ui/features/onboarding/onboarding_screen.dart';
+import 'package:shoes_shop_ui/features/sign_in/cubit/sign_in_cubit.dart';
+import 'package:shoes_shop_ui/features/sign_in/view/sign_in_screen.dart';
+import 'package:shoes_shop_ui/features/sign_up/cubit/sign_up_cubit.dart';
+import 'package:shoes_shop_ui/features/sign_up/view/sign_up_screen.dart';
 import 'package:shoes_shop_ui/main.dart';
 import 'package:shoes_shop_ui/my_app.dart';
 import 'package:shoes_shop_ui/routes/app_navigation.dart';
@@ -31,8 +34,19 @@ class ScreenFactoryDefault implements ScreenFactory {
   final _DIContainer _diContainer;
 
   @override
-  Widget makeLoginScreen() {
-    return const Text('data');
+  Widget makeSignInScreen() {
+    return BlocProvider(
+      create: (_) => SignInCubit(),
+      child: const SignInScreen(),
+    );
+  }
+
+  @override
+  Widget makeSignUpScreen() {
+    return BlocProvider(
+      create: (_) => SignUpCubit(),
+      child: const SignUpScreen(),
+    );
   }
 
   @override
@@ -43,9 +57,6 @@ class ScreenFactoryDefault implements ScreenFactory {
 
   @override
   Widget makeOnboardingScreen() {
-    return BlocProvider(
-      create: (_) => OnboardingBloc(),
-      child: const OnBoardingScreen(),
-    );
+    return const OnBoardingScreen();
   }
 }

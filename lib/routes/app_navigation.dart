@@ -2,14 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
 abstract class NavigationRouteNames {
-  static const mainScreen = '/main_screen';
-  static const loginScreen = 'login';
+  static const mainScreen = 'main_screen';
+  static const signInScreen = 'sign_in';
+  static const signUpScreen = 'sign_up';
   static const onboardingScreen = '/';
 }
 
 abstract class ScreenFactory {
   Widget makeMainScreen();
-  Widget makeLoginScreen();
+  Widget makeSignInScreen();
+  Widget makeSignUpScreen();
   Widget makeOnboardingScreen();
 }
 
@@ -24,10 +26,17 @@ class AppRouter {
     initialLocation: '/',
     routes: <GoRoute>[
       GoRoute(
-        path: '/login',
-        name: NavigationRouteNames.loginScreen,
+        path: '/sign_in',
+        name: NavigationRouteNames.signInScreen,
         builder: (BuildContext context, GoRouterState state) {
-          return screenFactory.makeLoginScreen();
+          return screenFactory.makeSignInScreen();
+        },
+      ),
+      GoRoute(
+        path: '/sign_up',
+        name: NavigationRouteNames.signUpScreen,
+        builder: (BuildContext context, GoRouterState state) {
+          return screenFactory.makeSignUpScreen();
         },
       ),
       GoRoute(

@@ -14,7 +14,7 @@ class GetStartedButtonWidget extends StatefulWidget {
     this.tapOpacity = 0.4,
   }) : assert(tapOpacity == null || (tapOpacity >= 0.0 && tapOpacity <= 1.0));
 
-  final Text title;
+  final Widget title;
   final void Function()? onTap;
   final double? tapOpacity;
   final Color color;

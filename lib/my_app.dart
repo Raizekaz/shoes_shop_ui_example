@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:shoes_shop_ui/features/onboarding/view/onboarding_screen.dart';
 import 'package:shoes_shop_ui/routes/app_navigation.dart';
 
 class App extends StatelessWidget {
