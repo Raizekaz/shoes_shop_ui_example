@@ -90,7 +90,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   GetStartedButtonWidget(
                     title: Text(
                       'GET STARTED',
-                      style: AppTextStyles.fs16fw600white,
+                      style: AppTextStyles.fs16fw700white,
                     ),
                     width: MediaQuery.of(context).size.width,
                     onTap: () =>
@@ -105,7 +105,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           icon: AppIcons.google,
                           title: Text(
                             'GOOGLE',
-                            style: AppTextStyles.fs16fw600,
+                            style: AppTextStyles.fs16fw700,
                           ),
                           width: MediaQuery.of(context).size.width * 0.375,
                           color: AppColors.white,
@@ -117,7 +117,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           icon: AppIcons.facebook,
                           title: Text(
                             'FACEBOOK',
-                            style: AppTextStyles.fs16fw600,
+                            style: AppTextStyles.fs16fw700,
                           ),
                           width: MediaQuery.of(context).size.width * 0.375,
                           color: AppColors.white,
@@ -188,7 +188,7 @@ class _ContentDataWidget extends StatelessWidget {
               ),
               Text(
                 text,
-                style: AppTextStyles.fs16grey,
+                style: AppTextStyles.fs16fw500grey,
                 textAlign: TextAlign.center,
               ),
             ],

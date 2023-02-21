@@ -1,10 +1,15 @@
+import 'package:authentication_repository/authentication_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
 part 'sign_in_state.dart';
 
 class SignInCubit extends Cubit<SignInState> {
-  SignInCubit() : super(const SignInState());
+  SignInCubit(
+    this._authRepository,
+  ) : super(const SignInState());
+
+  final AuthenticationRepository _authRepository;
 
   void passwordChanged(String value) {
     emit(
@@ -26,43 +31,49 @@ class SignInCubit extends Cubit<SignInState> {
     );
   }
 
-  Future<void> _logInWithEmailAndPassword({
-    required String email,
-    required String password,
-  }) async {
-    Future.delayed(const Duration(seconds: 2), () {
-      email = state.email;
-      password = state.password;
-    });
-  }
-
   Future<void> logInWithCredentials() async {
     if (state.status.isLoading) return;
-    emit(
-      state.copyWith(status: SignInStatus.loading),
-    );
+    emit(state.copyWith(status: SignInStatus.loading));
+
     try {
-      await _logInWithEmailAndPassword(
+      await _authRepository.logInWithEmailAndPassword(
         email: state.email,
         password: state.password,
       );
-      if (state.email == 'example@mail.com' &&
-          state.password == 'secret1234567') {
-        emit(
-          state.copyWith(status: SignInStatus.success),
-        );
-      } else {
-        emit(
-          state.copyWith(status: SignInStatus.error),
-        );
-      }
-    } on Object catch (error) {
+
+      emit(state.copyWith(status: SignInStatus.success));
+    } on LogInWithEmailAndPasswordFailure catch (error) {
       emit(
         state.copyWith(
           status: SignInStatus.error,
-          errorMessage: error.toString(),
+          errorMessage: error.message,
         ),
       );
+    } on Object catch (error, stackTrace) {
+      emit(state.copyWith(status: SignInStatus.error));
+      addError(error, stackTrace);
+      rethrow;
+    }
+  }
+
+  Future<void> logInWithGoogle() async {
+    if (state.status.isLoading) return;
+    emit(state.copyWith(status: SignInStatus.loading));
+
+    try {
+      await _authRepository.logInWithGoogle();
+      emit(state.copyWith(status: SignInStatus.success));
+    } on LogInWithGoogleFailure catch (error) {
+      emit(
+        state.copyWith(
+          status: SignInStatus.error,
+          errorMessage: error.message,
+        ),
+      );
+    } on Object catch (error, stackTrace) {
+      emit(state.copyWith(status: SignInStatus.error));
+      addError(error, stackTrace);
+      rethrow;
     }
   }
 }

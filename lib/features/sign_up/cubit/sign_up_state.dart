@@ -10,6 +10,13 @@ extension SignUpStatusX on SignUpStatus {
   bool get isError => this == SignUpStatus.error;
 }
 
+enum CheckboxStatus { active, notActive }
+
+extension CheckboxStatusX on CheckboxStatus {
+  bool get isActive => this == CheckboxStatus.active;
+  bool get isNotActive => this == CheckboxStatus.notActive;
+}
+
 class SignUpState extends Equatable {
   const SignUpState({
     this.status = SignUpStatus.initial,
@@ -17,12 +24,16 @@ class SignUpState extends Equatable {
     this.name = '',
     this.email = '',
     this.password = '',
+    this.confirmPassword = '',
+    this.checkbox = CheckboxStatus.notActive,
   });
 
   final String name;
   final SignUpStatus status;
   final String email;
   final String password;
+  final String confirmPassword;
+  final CheckboxStatus checkbox;
   final String? errorMessage;
 
   @override
@@ -31,6 +42,8 @@ class SignUpState extends Equatable {
         password,
         email,
         name,
+        confirmPassword,
+        checkbox,
       ];
 
   SignUpState copyWith({
@@ -38,6 +51,8 @@ class SignUpState extends Equatable {
     SignUpStatus? status,
     String? email,
     String? password,
+    String? confirmPassword,
+    CheckboxStatus? checkbox,
     String? errorMessage,
   }) {
     return SignUpState(
@@ -45,6 +60,8 @@ class SignUpState extends Equatable {
       status: status ?? this.status,
       email: email ?? this.email,
       password: password ?? this.password,
+      confirmPassword: confirmPassword ?? this.confirmPassword,
+      checkbox: checkbox ?? this.checkbox,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }

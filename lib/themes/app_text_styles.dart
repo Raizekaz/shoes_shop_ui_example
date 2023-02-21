@@ -6,7 +6,7 @@ abstract class AppTextStyles {
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.black,
-    fontFamily: 'Noto Sans',
+    fontFamily: 'Urbanist',
   );
 
   static final TextStyle fs48fw700 = fs14.copyWith(
@@ -19,23 +19,36 @@ abstract class AppTextStyles {
     fontWeight: FontWeight.w600,
   );
 
-  static final TextStyle fs16grey = fs14.copyWith(
+  static final TextStyle fs16fw600grey = fs14.copyWith(
     fontSize: 16,
     color: AppColors.grey,
+    fontWeight: FontWeight.w600,
+  );
+
+  static final TextStyle fs16fw500grey = fs14.copyWith(
+    fontSize: 16,
+    color: AppColors.grey,
+    fontWeight: FontWeight.w500,
   );
 
   static final TextStyle fs14fw600 = fs14.copyWith(
     fontWeight: FontWeight.w600,
   );
 
-  static final TextStyle fs16fw600white = fs14.copyWith(
+  static final TextStyle fs16fw700white = fs14.copyWith(
     fontSize: 16,
     color: AppColors.white,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
   );
 
-  static final TextStyle fs16fw600 = fs14.copyWith(
+  static final TextStyle fs16fw700 = fs14.copyWith(
     fontSize: 16,
+    fontWeight: FontWeight.w700,
+  );
+
+  static final TextStyle fs14fw600grey = fs14.copyWith(
+    fontSize: 14,
+    color: AppColors.grey,
     fontWeight: FontWeight.w600,
   );
 

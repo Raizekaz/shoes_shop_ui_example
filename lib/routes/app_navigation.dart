@@ -1,11 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shoes_shop_ui/app/bloc/auth_bloc.dart';
 
 abstract class NavigationRouteNames {
   static const mainScreen = 'main_screen';
   static const signInScreen = 'sign_in';
   static const signUpScreen = 'sign_up';
-  static const onboardingScreen = '/';
+  static const onboardingScreen = 'onboard';
+}
+
+abstract class NavigationRoutePath {
+  static const mainScreen = '/';
+  static const signInScreen = '/sign_in';
+  static const signUpScreen = '/sign_up';
+  static const onboardingScreen = '/onboard';
 }
 
 abstract class ScreenFactory {
@@ -16,31 +26,54 @@ abstract class ScreenFactory {
 }
 
 class AppRouter {
-  AppRouter(
-    this.screenFactory,
-  );
+  AppRouter({
+    required this.screenFactory,
+    required this.authBloc,
+  });
   final ScreenFactory screenFactory;
+  final AuthBloc authBloc;
 
   late final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
-    initialLocation: '/',
+    initialLocation: NavigationRoutePath.onboardingScreen,
     routes: <GoRoute>[
       GoRoute(
-        path: '/sign_in',
+        path: NavigationRoutePath.onboardingScreen,
+        name: NavigationRouteNames.onboardingScreen,
+        builder: (BuildContext context, GoRouterState state) {
+          return screenFactory.makeOnboardingScreen();
+        },
+        redirect: (context, state) {
+          if (authBloc.state.status.isAuth) {
+            return NavigationRoutePath.mainScreen;
+          } else {
+            return null;
+          }
+        },
+      ),
+      GoRoute(
+        path: NavigationRoutePath.signInScreen,
         name: NavigationRouteNames.signInScreen,
         builder: (BuildContext context, GoRouterState state) {
           return screenFactory.makeSignInScreen();
         },
+        redirect: (context, state) {
+          if (authBloc.state.status.isAuth) {
+            return NavigationRoutePath.mainScreen;
+          } else {
+            return null;
+          }
+        },
       ),
       GoRoute(
-        path: '/sign_up',
+        path: NavigationRoutePath.signUpScreen,
         name: NavigationRouteNames.signUpScreen,
         builder: (BuildContext context, GoRouterState state) {
           return screenFactory.makeSignUpScreen();
         },
       ),
       GoRoute(
-        path: '/main_screen',
+        path: NavigationRoutePath.mainScreen,
         name: NavigationRouteNames.mainScreen,
         builder: (BuildContext context, GoRouterState state) {
           return screenFactory.makeMainScreen();
@@ -56,38 +89,23 @@ class AppRouter {
         //   ),
         // ],
       ),
-      GoRoute(
-        path: '/',
-        name: NavigationRouteNames.onboardingScreen,
-        builder: (BuildContext context, GoRouterState state) {
-          return screenFactory.makeOnboardingScreen();
-        },
-      ),
     ],
-    // redirect: (BuildContext context, GoRouterState state) {
-    // final loggedIn = appBloc.state.status == AppStatus.authenticated;
-    // final loggingIn = state.subloc == '/login';
-
-    // if (!loggedIn) return loggingIn ? null : '/login';
-    // if (loggingIn) return '/';
-    // return '/';
-    // },
-    // refreshListenable: GoRouterRefreshStream(appBloc.stream),
+    refreshListenable: GoRouterRefreshStream(authBloc.stream),
   );
 }
 
-// class GoRouterRefreshStream extends ChangeNotifier {
-//   GoRouterRefreshStream(Stream<dynamic> stream) {
-//     notifyListeners();
-//     _subscription =
-//         stream.asBroadcastStream().listen((dynamic _) => notifyListeners());
-//   }
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription =
+        stream.asBroadcastStream().listen((dynamic _) => notifyListeners());
+  }
 
-//   late final StreamSubscription<dynamic> _subscription;
+  late final StreamSubscription<dynamic> _subscription;
 
-//   @override
-//   void dispose() {
-//     _subscription.cancel();
-//     super.dispose();
-//   }
-// }
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}

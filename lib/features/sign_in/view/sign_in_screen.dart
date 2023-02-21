@@ -23,11 +23,15 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool isEmail(String email) {
-    String p =
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regExp = RegExp(p);
-    return regExp.hasMatch(email);
+  @override
+  void dispose() {
+    _emailController
+      ..clear()
+      ..dispose();
+    _passwordController
+      ..clear()
+      ..dispose();
+    super.dispose();
   }
 
   @override
@@ -35,132 +39,152 @@ class _SignInScreenState extends State<SignInScreen> {
     return CupertinoPageScaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.white,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.1),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 100),
-            Text(
-              'Sign In',
-              style: AppTextStyles.fs36fw600,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Please sign in to your Shoesly Account',
-              style: AppTextStyles.fs16grey,
-            ),
-            const SizedBox(height: 100),
-            _TextFormFieldWidget(
-              emailController: _emailController,
-              passwordController: _passwordController,
-            ),
-            const Spacer(flex: 3),
-            BlocConsumer<SignInCubit, SignInState>(
-              listener: (_, state) {
-                if (state.status.isError) {
-                  if (_emailController.text.isEmpty ||
-                      _passwordController.text.isEmpty) {
-                    showCupertinoDialog(
-                      context: context,
-                      builder: (context) {
-                        return const AlertDialogWidget(
-                          text: 'The Email or Password field is empty',
-                        );
-                      },
-                    );
-                  } else if (!isEmail(_emailController.text)) {
-                    showCupertinoDialog(
-                      context: context,
-                      builder: (context) {
-                        return const AlertDialogWidget(
-                          text: 'Please write the correct email',
-                        );
-                      },
-                    );
-                  } else if (_passwordController.text.length <= 8) {
-                    showCupertinoDialog(
-                      context: context,
-                      builder: (context) {
-                        return const AlertDialogWidget(
-                          text: 'Password must be at least 8 characters long',
-                        );
-                      },
-                    );
-                  }
-                }
-              },
-              builder: (_, state) {
-                return GetStartedButtonWidget(
-                  title: state.status.isLoading
-                      ? const CircularProgressIndicator(color: AppColors.white)
-                      : Text(
-                          'SIGN IN',
-                          style: AppTextStyles.fs16fw600white,
-                        ),
-                  width: MediaQuery.of(context).size.width,
-                  onTap: () {
-                    context.read<SignInCubit>().logInWithCredentials();
-                    FocusScope.of(context).unfocus();
-                  },
+      child: BlocListener<SignInCubit, SignInState>(
+        listener: (_, state) {
+          if (state.status.isError && state.errorMessage != null) {
+            showCupertinoDialog(
+              context: context,
+              builder: (_) {
+                return AlertDialogWidget(
+                  text: state.errorMessage!,
                 );
               },
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GetStartedButtonWidget(
-                    icon: AppIcons.google,
-                    title: Text(
-                      'GOOGLE',
-                      style: AppTextStyles.fs16fw600,
-                    ),
-                    width: MediaQuery.of(context).size.width * 0.375,
-                    color: AppColors.white,
-                    padding: 14,
-                    border: Border.all(color: AppColors.grey300),
-                    onTap: () {},
-                  ),
-                  GetStartedButtonWidget(
-                    icon: AppIcons.facebook,
-                    title: Text(
-                      'FACEBOOK',
-                      style: AppTextStyles.fs16fw600,
-                    ),
-                    width: MediaQuery.of(context).size.width * 0.375,
-                    color: AppColors.white,
-                    padding: 14,
-                    border: Border.all(color: AppColors.grey300),
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            );
+          } else if (state.status.isError && _emailController.text.isEmpty) {
+            showCupertinoDialog(
+              context: context,
+              builder: (_) {
+                return const AlertDialogWidget(
+                  text: 'The Email field is empty',
+                );
+              },
+            );
+          } else if (state.status.isError && _passwordController.text.isEmpty) {
+            showCupertinoDialog(
+              context: context,
+              builder: (_) {
+                return const AlertDialogWidget(
+                  text: 'The Password field is empty',
+                );
+              },
+            );
+          }
+        },
+        child: _ContentWidget(
+          emailController: _emailController,
+          passwordController: _passwordController,
+        ),
+      ),
+    );
+  }
+}
+
+class _ContentWidget extends StatelessWidget {
+  const _ContentWidget({
+    required TextEditingController emailController,
+    required TextEditingController passwordController,
+  })  : _emailController = emailController,
+        _passwordController = passwordController;
+
+  final TextEditingController _emailController;
+  final TextEditingController _passwordController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 100),
+          Text(
+            'Sign In',
+            style: AppTextStyles.fs36fw600,
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Please sign in to your Shoesly Account',
+            style: AppTextStyles.fs16fw500grey,
+          ),
+          const SizedBox(height: 100),
+          _TextFormFieldWidget(
+            emailController: _emailController,
+            passwordController: _passwordController,
+          ),
+          const Spacer(flex: 3),
+          BlocBuilder<SignInCubit, SignInState>(
+            builder: (_, state) {
+              return GetStartedButtonWidget(
+                title: state.status.isLoading
+                    ? const CircularProgressIndicator(
+                        strokeWidth: 2, color: AppColors.white)
+                    : Text(
+                        'SIGN IN',
+                        style: AppTextStyles.fs16fw700white,
+                      ),
+                width: MediaQuery.of(context).size.width,
+                onTap: () {
+                  state.status.isLoading
+                      ? null
+                      : context.read<SignInCubit>().logInWithCredentials();
+                  FocusScope.of(context).unfocus();
+                },
+              );
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 20, bottom: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Join with us. ',
-                  style: AppTextStyles.fs14grey,
-                ),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  child: Text(
-                    'Create Account',
-                    style: AppTextStyles.fs14fw600,
+                GetStartedButtonWidget(
+                  icon: AppIcons.google,
+                  title: Text(
+                    'GOOGLE',
+                    style: AppTextStyles.fs16fw700,
                   ),
-                  onPressed: () {
-                    context.pushNamed(NavigationRouteNames.signUpScreen);
-                  },
+                  width: MediaQuery.of(context).size.width * 0.375,
+                  color: AppColors.white,
+                  padding: 14,
+                  border: Border.all(color: AppColors.grey300),
+                  onTap: () {},
+                ),
+                GetStartedButtonWidget(
+                  icon: AppIcons.facebook,
+                  title: Text(
+                    'FACEBOOK',
+                    style: AppTextStyles.fs16fw700,
+                  ),
+                  width: MediaQuery.of(context).size.width * 0.375,
+                  color: AppColors.white,
+                  padding: 14,
+                  border: Border.all(color: AppColors.grey300),
+                  onTap: () {},
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-          ],
-        ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Join with us. ',
+                style: AppTextStyles.fs14grey,
+              ),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: Text(
+                  'Create Account',
+                  style: AppTextStyles.fs14fw600,
+                ),
+                onPressed: () {
+                  context.pushNamed(NavigationRouteNames.signUpScreen);
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }
@@ -205,11 +229,12 @@ class _TextFormFieldWidgetState extends State<_TextFormFieldWidget> {
       children: [
         Text(
           'Email',
-          style: AppTextStyles.fs16fw600,
+          style: AppTextStyles.fs16fw700,
         ),
         BlocBuilder<SignInCubit, SignInState>(
           builder: (_, state) {
             return TextFieldWidget(
+              keyboardType: TextInputType.emailAddress,
               controller: widget.emailController,
               onChanged: (value) =>
                   context.read<SignInCubit>().emailChanged(value),
@@ -217,14 +242,19 @@ class _TextFormFieldWidgetState extends State<_TextFormFieldWidget> {
                 _onEmail = true;
                 _onPassword = false;
               }),
-              onSubmitted: (value) => setState(() => _onEmail),
-              onTapOutside: (event) => setState(() => _onEmail),
+              onSubmitted: (value) => setState(() => _onEmail = false),
+              onTapOutside: (event) => setState(() {
+                _onEmail = false;
+                FocusScope.of(context).unfocus();
+              }),
               hint: 'example@mail.com',
-              decoration: state.status.isError
+              decoration: state.status.isError ||
+                      (state.email.isEmpty && state.status.isError)
                   ? const BoxDecoration(
                       border: Border(
-                      bottom: BorderSide(color: CupertinoColors.systemRed),
-                    ))
+                        bottom: BorderSide(color: CupertinoColors.systemRed),
+                      ),
+                    )
                   : decoration(_onEmail),
             );
           },
@@ -232,11 +262,12 @@ class _TextFormFieldWidgetState extends State<_TextFormFieldWidget> {
         const SizedBox(height: 20),
         Text(
           'Password',
-          style: AppTextStyles.fs16fw600,
+          style: AppTextStyles.fs16fw700,
         ),
         BlocBuilder<SignInCubit, SignInState>(
           builder: (_, state) {
             return TextFieldWidget(
+              keyboardType: TextInputType.text,
               onChanged: (value) =>
                   context.read<SignInCubit>().passwordChanged(value),
               controller: widget.passwordController,
@@ -245,25 +276,30 @@ class _TextFormFieldWidgetState extends State<_TextFormFieldWidget> {
                 _onPassword = true;
               }),
               obscure: _visible,
-              onSubmitted: (value) => setState(() => _onPassword),
-              onTapOutside: (event) => setState(() => _onPassword),
+              onSubmitted: (value) => setState(() => _onPassword = false),
+              onTapOutside: (event) => setState(() {
+                _onPassword = false;
+                FocusScope.of(context).unfocus();
+              }),
               hint: 'secret1234567',
-              decoration: state.status.isError
+              decoration: state.status.isError ||
+                      (state.password.isEmpty && state.status.isError)
                   ? const BoxDecoration(
                       border: Border(
-                      bottom: BorderSide(color: CupertinoColors.systemRed),
-                    ))
+                        bottom: BorderSide(color: CupertinoColors.systemRed),
+                      ),
+                    )
                   : decoration(_onPassword),
               suffix: GestureDetector(
                 child: CupertinoButton(
                   child: _visible == false
                       ? const Icon(
                           Icons.visibility_outlined,
-                          color: AppColors.grey,
+                          color: AppColors.black,
                         )
                       : const Icon(
                           Icons.visibility_off_outlined,
-                          color: AppColors.grey,
+                          color: AppColors.black,
                         ),
                   onPressed: () => setState(() => _visible = !_visible),
                 ),
