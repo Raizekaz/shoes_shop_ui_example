@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:authentication_repository/authentication_repository.dart';
+import 'package:authentication_repository/shared/firebase_constans.dart';
 import 'package:cache/cache.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
@@ -196,17 +198,45 @@ class AuthenticationRepository {
   /// Creates a new user with the provided [email] and [password].
   ///
   /// Throws a [SignUpWithEmailAndPasswordFailure] if an exception occurs.
-  Future<void> signUp({required String email, required String password}) async {
+  Future<User?> signUp({
+    required String email,
+    required String password,
+    required String name,
+  }) async {
+    User? user;
     try {
-      await _firebaseAuth.createUserWithEmailAndPassword(
+      final response = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      final user = response.user;
+      if (user != null) {
+        final QuerySnapshot result = await FirebaseFirestore.instance
+            .collection(FirebaseConstants.pathUserCollection)
+            .where(FirebaseConstants.id, isEqualTo: user.uid)
+            .get();
+        final List<DocumentSnapshot> documents = result.docs;
+        if (documents.isEmpty) {
+          await FirebaseFirestore.instance
+              .collection(FirebaseConstants.pathUserCollection)
+              .doc(user.uid)
+              .set({
+            FirebaseConstants.id: user.uid,
+            FirebaseConstants.name: name,
+            FirebaseConstants.email: email,
+            FirebaseConstants.emailVerified: user.emailVerified,
+            FirebaseConstants.country: user.toUser.country,
+            FirebaseConstants.photoUrl: user.toUser.photo,
+            'createAt': DateTime.now(),
+          });
+        }
+      }
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw SignUpWithEmailAndPasswordFailure.fromCode(e.code);
     } catch (_) {
       throw const SignUpWithEmailAndPasswordFailure();
     }
+    return user;
   }
 
   /// Starts the Sign In with Google Flow.

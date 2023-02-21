@@ -9,11 +9,10 @@ environment:
 dependencies:
   cache:
     path: ../cache
+  cloud_firestore: ^4.4.2
   equatable: ^2.0.5
   firebase_auth: ^4.2.1
   firebase_core: ^2.4.0
-  # Unfortunately, a breaking change was introduced in 4.5.2.
-  # https://github.com/firebase/flutterfire/issues/9806
   firebase_performance_platform_interface: ^0.1.1+27
   flutter:
     sdk: flutter

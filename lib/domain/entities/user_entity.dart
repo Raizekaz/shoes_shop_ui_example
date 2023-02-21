@@ -1,14 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:equatable/equatable.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb;
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:equatable/equatable.dart';
+// import 'package:firebase_auth/firebase_auth.dart' as fb;
 
-class User {
-  late String id;
+// class User {
+//   late String id;
 
-  User.fromFirebase(fb.User user) {
-    id = user.uid;
-  }
-}
+//   User.fromFirebase(fb.User user) {
+//     id = user.uid;
+//   }
+// }
 
 // class User extends Equatable {
 //   const User({

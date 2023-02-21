@@ -2,11 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shoes_shop_ui/app/bloc/auth_bloc.dart';
 import 'package:shoes_shop_ui/components/alert_dialog.dart';
 import 'package:shoes_shop_ui/components/get_started_button_widget.dart';
 import 'package:shoes_shop_ui/components/sign_in_textfield.dart';
 import 'package:shoes_shop_ui/features/sign_up/cubit/sign_up_cubit.dart';
 import 'package:shoes_shop_ui/resources/resources.dart';
+import 'package:shoes_shop_ui/routes/app_navigation.dart';
 import 'package:shoes_shop_ui/themes/app_colors.dart';
 import 'package:shoes_shop_ui/themes/app_text_styles.dart';
 
@@ -24,187 +26,210 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
-  bool _isEmail(String email) {
-    String p =
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regExp = RegExp(p);
-    return regExp.hasMatch(email);
-  }
 
-  void _errorDialogs() {
-    if (context.read<SignUpCubit>().state.status.isError) {
-      if (_nameController.text.isEmpty) {
-        showCupertinoDialog(
-          context: context,
-          builder: (context) {
-            return const AlertDialogWidget(
-              text: 'Name field is empty',
-            );
-          },
-        );
-      } else if (_emailController.text.isEmpty) {
-        showCupertinoDialog(
-          context: context,
-          builder: (context) {
-            return const AlertDialogWidget(
-              text: 'Email field is empty',
-            );
-          },
-        );
-      } else if (_passwordController.text.isEmpty) {
-        showCupertinoDialog(
-          context: context,
-          builder: (context) {
-            return const AlertDialogWidget(
-              text: 'Password field is empty',
-            );
-          },
-        );
-      } else if (_confirmPasswordController.text.isEmpty) {
-        showCupertinoDialog(
-          context: context,
-          builder: (context) {
-            return const AlertDialogWidget(
-              text: 'Confirm Password field is empty',
-            );
-          },
-        );
-      } else if (!_isEmail(_emailController.text)) {
-        showCupertinoDialog(
-          context: context,
-          builder: (context) {
-            return const AlertDialogWidget(
-              text: 'Please write the correct email',
-            );
-          },
-        );
-      } else if (_passwordController.text.length < 8) {
-        showCupertinoDialog(
-          context: context,
-          builder: (context) {
-            return const AlertDialogWidget(
-              text: 'Password must be at least 8 characters long',
-            );
-          },
-        );
-      } else if (_passwordController.text != _confirmPasswordController.text) {
-        showCupertinoDialog(
-          context: context,
-          builder: (context) {
-            return const AlertDialogWidget(
-              text: 'The passwords don\'t match',
-            );
-          },
-        );
-      }
-    }
+  @override
+  void dispose() {
+    _emailController
+      ..clear()
+      ..dispose();
+    _passwordController
+      ..clear()
+      ..dispose();
+    _nameController
+      ..clear()
+      ..dispose();
+    _confirmPasswordController
+      ..clear()
+      ..dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       backgroundColor: AppColors.white,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30),
-        child: CustomScrollView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          slivers: [
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  const SizedBox(height: 100),
-                  Text(
-                    'Create Account',
-                    style: AppTextStyles.fs36fw600,
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Please sign in to your Shoesly Account',
-                    style: AppTextStyles.fs16fw600grey,
-                  ),
-                  const SizedBox(height: 60),
-                  _TextFormFieldWidget(
-                    emailController: _emailController,
-                    passwordController: _passwordController,
-                    nameController: _nameController,
-                    confirmPasswordController: _confirmPasswordController,
-                  ),
-                  const SizedBox(height: 60),
-                  BlocConsumer<SignUpCubit, SignUpState>(
-                    listener: (_, state) {
-                      _errorDialogs();
-                    },
-                    builder: (_, state) {
-                      return GetStartedButtonWidget(
-                        title: state.status.isLoading
-                            ? const CircularProgressIndicator(
-                                color: AppColors.white)
-                            : Text(
-                                'CREATE ACCOUNT',
-                                style: AppTextStyles.fs16fw700white,
-                              ),
-                        width: MediaQuery.of(context).size.width,
-                        onTap: () {
-                          context.read<SignUpCubit>().signUpWithCredentials();
-                          FocusScope.of(context).unfocus();
-                        },
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20, bottom: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: BlocListener<SignUpCubit, SignUpState>(
+        listener: (_, state) {
+          if (state.status.isError && state.errorMessage != null) {
+            showCupertinoDialog(
+              context: context,
+              builder: (_) {
+                return AlertDialogWidget(
+                  text: state.errorMessage!,
+                );
+              },
+            );
+          } else if (state.status.isError &&
+              _nameController.text.isEmpty &&
+              state.errorMessage == null) {
+            showCupertinoDialog(
+              context: context,
+              builder: (_) {
+                return const AlertDialogWidget(
+                  text: 'Name field is empty',
+                );
+              },
+            );
+          } else if (state.status.isError &&
+              _emailController.text.isEmpty &&
+              state.errorMessage == null) {
+            showCupertinoDialog(
+              context: context,
+              builder: (_) {
+                return const AlertDialogWidget(
+                  text: 'Email field is empty',
+                );
+              },
+            );
+          } else if (state.status.isError &&
+              _passwordController.text.isEmpty &&
+              state.errorMessage == null) {
+            showCupertinoDialog(
+              context: context,
+              builder: (_) {
+                return const AlertDialogWidget(
+                  text: 'Password field is empty',
+                );
+              },
+            );
+          } else if (state.status.isError &&
+              _confirmPasswordController.text.isEmpty &&
+              state.errorMessage == null) {
+            showCupertinoDialog(
+              context: context,
+              builder: (_) {
+                return const AlertDialogWidget(
+                  text: 'Confirm Password field is empty',
+                );
+              },
+            );
+          } else if (state.status.isError &&
+              _passwordController.text != _confirmPasswordController.text &&
+              state.errorMessage == null) {
+            showCupertinoDialog(
+              context: context,
+              builder: (_) {
+                return const AlertDialogWidget(
+                  text: 'The passwords don\'t match',
+                );
+              },
+            );
+          } else if (state.checkbox.isNotActive && state.status.isError) {
+            showCupertinoDialog(
+              context: context,
+              builder: (_) {
+                return const AlertDialogWidget(
+                  text: 'Privacy Policy not accepted',
+                );
+              },
+            );
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: CustomScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            slivers: [
+              SliverList(
+                delegate: SliverChildListDelegate(
+                  [
+                    const SizedBox(height: 100),
+                    Text(
+                      'Create Account',
+                      style: AppTextStyles.fs36fw600,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Please sign in to your Shoesly Account',
+                      style: AppTextStyles.fs16fw600grey,
+                    ),
+                    const SizedBox(height: 60),
+                    _TextFormFieldWidget(
+                      emailController: _emailController,
+                      passwordController: _passwordController,
+                      nameController: _nameController,
+                      confirmPasswordController: _confirmPasswordController,
+                    ),
+                    const SizedBox(height: 60),
+                    BlocBuilder<SignUpCubit, SignUpState>(
+                      builder: (_, state) {
+                        return GetStartedButtonWidget(
+                          title: state.status.isLoading
+                              ? const CircularProgressIndicator(
+                                  color: AppColors.white,
+                                  strokeWidth: 2,
+                                )
+                              : Text(
+                                  'CREATE ACCOUNT',
+                                  style: AppTextStyles.fs16fw700white,
+                                ),
+                          width: MediaQuery.of(context).size.width,
+                          onTap: () {
+                            state.status.isLoading
+                                ? null
+                                : context
+                                    .read<SignUpCubit>()
+                                    .signUpWithCredentials();
+                            FocusScope.of(context).unfocus();
+                          },
+                        );
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20, bottom: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GetStartedButtonWidget(
+                            icon: AppIcons.google,
+                            title: Text(
+                              'GOOGLE',
+                              style: AppTextStyles.fs16fw700,
+                            ),
+                            width: MediaQuery.of(context).size.width * 0.375,
+                            color: AppColors.white,
+                            padding: 14,
+                            border: Border.all(color: AppColors.grey300),
+                            onTap: () {},
+                          ),
+                          GetStartedButtonWidget(
+                            icon: AppIcons.facebook,
+                            title: Text(
+                              'FACEBOOK',
+                              style: AppTextStyles.fs16fw700,
+                            ),
+                            width: MediaQuery.of(context).size.width * 0.375,
+                            color: AppColors.white,
+                            padding: 14,
+                            border: Border.all(color: AppColors.grey300),
+                            onTap: () {},
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        GetStartedButtonWidget(
-                          icon: AppIcons.google,
-                          title: Text(
-                            'GOOGLE',
-                            style: AppTextStyles.fs16fw700,
-                          ),
-                          width: MediaQuery.of(context).size.width * 0.375,
-                          color: AppColors.white,
-                          padding: 14,
-                          border: Border.all(color: AppColors.grey300),
-                          onTap: () {},
+                        Text(
+                          'Have Account? ',
+                          style: AppTextStyles.fs14grey,
                         ),
-                        GetStartedButtonWidget(
-                          icon: AppIcons.facebook,
-                          title: Text(
-                            'FACEBOOK',
-                            style: AppTextStyles.fs16fw700,
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          child: Text(
+                            'Sign In Now',
+                            style: AppTextStyles.fs14fw600,
                           ),
-                          width: MediaQuery.of(context).size.width * 0.375,
-                          color: AppColors.white,
-                          padding: 14,
-                          border: Border.all(color: AppColors.grey300),
-                          onTap: () {},
+                          onPressed: () => context.pop(),
                         ),
                       ],
                     ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Have Account? ',
-                        style: AppTextStyles.fs14grey,
-                      ),
-                      CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        child: Text(
-                          'Sign In Now',
-                          style: AppTextStyles.fs14fw600,
-                        ),
-                        onPressed: () => context.pop(),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                ],
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -292,10 +317,9 @@ class _TextFormFieldWidgetState extends State<_TextFormFieldWidget> {
   }
 
   BoxDecoration _errorConfirmPassword() {
-    final cubit = context.read<SignUpCubit>().state;
-    return cubit.status.isError && cubit.confirmPassword.isEmpty ||
-            cubit.status.isError && cubit.confirmPassword.length <= 8 ||
-            cubit.status.isError && cubit.confirmPassword != cubit.password
+    final state = context.read<SignUpCubit>().state;
+    return state.status.isError && state.confirmPassword.isEmpty ||
+            state.status.isError && state.password != state.confirmPassword
         ? const BoxDecoration(
             border: Border(
               bottom: BorderSide(color: CupertinoColors.systemRed),
@@ -305,10 +329,9 @@ class _TextFormFieldWidgetState extends State<_TextFormFieldWidget> {
   }
 
   BoxDecoration _errorPassword() {
-    final cubit = context.read<SignUpCubit>().state;
-    return cubit.status.isError && cubit.password.isEmpty ||
-            cubit.status.isError && cubit.password.length <= 8 ||
-            cubit.status.isError && cubit.confirmPassword != cubit.password
+    final state = context.read<SignUpCubit>().state;
+    return (state.password.isEmpty && state.status.isError) ||
+            state.confirmPassword != state.password && state.status.isError
         ? const BoxDecoration(
             border: Border(
               bottom: BorderSide(color: CupertinoColors.systemRed),
@@ -318,8 +341,8 @@ class _TextFormFieldWidgetState extends State<_TextFormFieldWidget> {
   }
 
   BoxDecoration _errorName() {
-    final cubit = context.read<SignUpCubit>().state;
-    return cubit.status.isError && cubit.name.isEmpty
+    final state = context.read<SignUpCubit>().state;
+    return state.status.isError && state.name.isEmpty
         ? const BoxDecoration(
             border: Border(
               bottom: BorderSide(color: CupertinoColors.systemRed),
@@ -329,9 +352,11 @@ class _TextFormFieldWidgetState extends State<_TextFormFieldWidget> {
   }
 
   BoxDecoration _errorEmail() {
-    final cubit = context.read<SignUpCubit>().state;
-    return cubit.status.isError && cubit.email.isEmpty ||
-            cubit.status.isError && !_isEmail(cubit.email)
+    final state = context.read<SignUpCubit>().state;
+    return state.status.isError && state.email.isEmpty ||
+            state.status.isError &&
+                !_isEmail(state.email) &&
+                state.errorMessage != null
         ? const BoxDecoration(
             border: Border(
               bottom: BorderSide(color: CupertinoColors.systemRed),
@@ -416,11 +441,11 @@ class _TextFormFieldWidgetState extends State<_TextFormFieldWidget> {
                   child: _visible == false
                       ? const Icon(
                           Icons.visibility_outlined,
-                          color: AppColors.grey,
+                          color: CupertinoColors.black,
                         )
                       : const Icon(
                           Icons.visibility_off_outlined,
-                          color: AppColors.grey,
+                          color: CupertinoColors.black,
                         ),
                   onPressed: () => setState(() => _visible = !_visible),
                 ),
@@ -443,7 +468,7 @@ class _TextFormFieldWidgetState extends State<_TextFormFieldWidget> {
             return TextFieldWidget(
               keyboardType: TextInputType.text,
               onChanged: (value) =>
-                  context.read<SignUpCubit>().passwordChanged(value),
+                  context.read<SignUpCubit>().confirmPasswordChanged(value),
               controller: widget.confirmPasswordController,
               onTap: _confirmPassword,
               obscure: _visible,
@@ -460,11 +485,11 @@ class _TextFormFieldWidgetState extends State<_TextFormFieldWidget> {
                   child: _visible == false
                       ? const Icon(
                           Icons.visibility_outlined,
-                          color: AppColors.grey,
+                          color: CupertinoColors.black,
                         )
                       : const Icon(
                           Icons.visibility_off_outlined,
-                          color: AppColors.grey,
+                          color: CupertinoColors.black,
                         ),
                   onPressed: () => setState(() => _visible = !_visible),
                 ),

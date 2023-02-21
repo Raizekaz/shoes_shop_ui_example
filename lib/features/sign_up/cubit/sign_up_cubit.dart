@@ -1,6 +1,7 @@
 import 'package:authentication_repository/authentication_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
 
 part 'sign_up_state.dart';
 
@@ -79,25 +80,37 @@ class SignUpCubit extends Cubit<SignUpState> {
 
   Future<void> signUpWithCredentials() async {
     if (state.status.isLoading) return;
-    emit(
-      state.copyWith(status: SignUpStatus.loading),
-    );
-    try {
-      await _authRepository.signUp(
-        email: state.email,
-        password: state.password,
-      );
+    emit(state.copyWith(status: SignUpStatus.loading));
 
-      emit(
-        state.copyWith(status: SignUpStatus.success),
+    if (state.checkbox.isNotActive) {
+      emit(state.copyWith(status: SignUpStatus.error));
+      return;
+    } else if (state.checkbox.isActive &&
+        state.password != state.confirmPassword) {
+      emit(state.copyWith(status: SignUpStatus.error));
+      return;
+    }
+
+    try {
+      final result = await _authRepository.signUp(
+        email: state.email,
+        password: state.confirmPassword,
+        name: state.name,
       );
-    } on Object catch (error) {
+      if (result != null) {
+        emit(state.copyWith(status: SignUpStatus.success));
+      }
+    } on SignUpWithEmailAndPasswordFailure catch (error) {
       emit(
         state.copyWith(
           status: SignUpStatus.error,
-          errorMessage: error.toString(),
+          errorMessage: error.message,
         ),
       );
+    } on Object catch (error, stackTrace) {
+      emit(state.copyWith(status: SignUpStatus.error));
+      addError(error, stackTrace);
+      rethrow;
     }
   }
 }

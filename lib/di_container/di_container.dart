@@ -2,6 +2,7 @@ import 'package:authentication_repository/authentication_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shoes_shop_ui/features/main/view/main_screen.dart';
+import 'package:shoes_shop_ui/features/onboarding/onboarding_dop.dart';
 import 'package:shoes_shop_ui/features/onboarding/onboarding_screen.dart';
 import 'package:shoes_shop_ui/features/sign_in/cubit/sign_in_cubit.dart';
 import 'package:shoes_shop_ui/features/sign_in/view/sign_in_screen.dart';
@@ -63,5 +64,10 @@ class ScreenFactoryDefault implements ScreenFactory {
   @override
   Widget makeOnboardingScreen() {
     return const OnBoardingScreen();
+  }
+
+  @override
+  Widget makeOnboardingDopScreen() {
+    return const OnboardingDopScreen();
   }
 }

@@ -50,7 +50,9 @@ class _SignInScreenState extends State<SignInScreen> {
                 );
               },
             );
-          } else if (state.status.isError && _emailController.text.isEmpty) {
+          } else if (state.status.isError &&
+              _emailController.text.isEmpty &&
+              state.errorMessage == null) {
             showCupertinoDialog(
               context: context,
               builder: (_) {
@@ -59,7 +61,9 @@ class _SignInScreenState extends State<SignInScreen> {
                 );
               },
             );
-          } else if (state.status.isError && _passwordController.text.isEmpty) {
+          } else if (state.status.isError &&
+              _passwordController.text.isEmpty &&
+              state.errorMessage == null) {
             showCupertinoDialog(
               context: context,
               builder: (_) {
@@ -128,6 +132,8 @@ class _ContentWidget extends StatelessWidget {
                       ? null
                       : context.read<SignInCubit>().logInWithCredentials();
                   FocusScope.of(context).unfocus();
+
+                  context.goNamed(NavigationRouteNames.mainScreen);
                 },
               );
             },
@@ -147,7 +153,7 @@ class _ContentWidget extends StatelessWidget {
                   color: AppColors.white,
                   padding: 14,
                   border: Border.all(color: AppColors.grey300),
-                  onTap: () {},
+                  onTap: () => context.read<SignInCubit>().logInWithGoogle(),
                 ),
                 GetStartedButtonWidget(
                   icon: AppIcons.facebook,
@@ -248,7 +254,8 @@ class _TextFormFieldWidgetState extends State<_TextFormFieldWidget> {
                 FocusScope.of(context).unfocus();
               }),
               hint: 'example@mail.com',
-              decoration: state.status.isError ||
+              decoration: (state.status.isError &&
+                          state.errorMessage != null) ||
                       (state.email.isEmpty && state.status.isError)
                   ? const BoxDecoration(
                       border: Border(
@@ -282,7 +289,8 @@ class _TextFormFieldWidgetState extends State<_TextFormFieldWidget> {
                 FocusScope.of(context).unfocus();
               }),
               hint: 'secret1234567',
-              decoration: state.status.isError ||
+              decoration: (state.status.isError &&
+                          state.errorMessage != null) ||
                       (state.password.isEmpty && state.status.isError)
                   ? const BoxDecoration(
                       border: Border(

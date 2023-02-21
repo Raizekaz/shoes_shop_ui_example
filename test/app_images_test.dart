@@ -5,6 +5,7 @@ import 'package:shoes_shop_ui/resources/resources.dart';
 
 void main() {
   test('app_images assets test', () {
+    expect(File(AppImages.onboardingDop).existsSync(), true);
     expect(File(AppImages.onboardingOne).existsSync(), true);
     expect(File(AppImages.onboardingThree).existsSync(), true);
     expect(File(AppImages.onboardingTwo).existsSync(), true);

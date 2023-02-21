@@ -9,13 +9,15 @@ abstract class NavigationRouteNames {
   static const signInScreen = 'sign_in';
   static const signUpScreen = 'sign_up';
   static const onboardingScreen = 'onboard';
+  static const onboardingDopScreen = 'onboard_dop';
 }
 
 abstract class NavigationRoutePath {
   static const mainScreen = '/';
   static const signInScreen = '/sign_in';
-  static const signUpScreen = '/sign_up';
+  static const signUpScreen = 'sign_in/sign_up';
   static const onboardingScreen = '/onboard';
+  static const onboardingDopScreen = '/onboard_dop';
 }
 
 abstract class ScreenFactory {
@@ -23,6 +25,7 @@ abstract class ScreenFactory {
   Widget makeSignInScreen();
   Widget makeSignUpScreen();
   Widget makeOnboardingScreen();
+  Widget makeOnboardingDopScreen();
 }
 
 class AppRouter {
@@ -57,19 +60,28 @@ class AppRouter {
         builder: (BuildContext context, GoRouterState state) {
           return screenFactory.makeSignInScreen();
         },
-        redirect: (context, state) {
-          if (authBloc.state.status.isAuth) {
-            return NavigationRoutePath.mainScreen;
-          } else {
-            return null;
-          }
-        },
+        routes: [
+          GoRoute(
+            path: NavigationRoutePath.signUpScreen,
+            name: NavigationRouteNames.signUpScreen,
+            builder: (BuildContext context, GoRouterState state) {
+              return screenFactory.makeSignUpScreen();
+            },
+            redirect: (context, state) {
+              if (authBloc.state.status.isAuth) {
+                return NavigationRoutePath.onboardingDopScreen;
+              } else {
+                return null;
+              }
+            },
+          ),
+        ],
       ),
       GoRoute(
-        path: NavigationRoutePath.signUpScreen,
-        name: NavigationRouteNames.signUpScreen,
+        path: NavigationRoutePath.onboardingDopScreen,
+        name: NavigationRouteNames.onboardingDopScreen,
         builder: (BuildContext context, GoRouterState state) {
-          return screenFactory.makeSignUpScreen();
+          return screenFactory.makeOnboardingDopScreen();
         },
       ),
       GoRoute(
@@ -77,6 +89,13 @@ class AppRouter {
         name: NavigationRouteNames.mainScreen,
         builder: (BuildContext context, GoRouterState state) {
           return screenFactory.makeMainScreen();
+        },
+        redirect: (context, state) {
+          if (authBloc.state.status.isUnauth) {
+            return NavigationRoutePath.signInScreen;
+          } else {
+            return null;
+          }
         },
         // routes: [
         //   GoRoute(
